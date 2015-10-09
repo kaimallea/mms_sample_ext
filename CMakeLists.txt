@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
 
 project(mms_sample_ext)
 
@@ -14,40 +14,104 @@ set(LIB_PREFIX "lib")
 if(APPLE)
     set(LIB_EXT "dylib")
     set(HL2LIB "${HL2SDK}/lib/mac")
-    set(CXX_FLAGS "-DOSX -D_OSX")
-    set(LINKER_FLAGS "-dynamiclib -lstdc++ -mmacosx-version-min=10.5")
+    set(CXX_FLAGS_LIST
+        -DOSX
+        -D_OSX
+    )
+    set(LINKER_FLAGS_LIST
+        -dynamiclib
+        -lstdc++
+        -mmacosx-version-min=10.5
+    )
 elseif(UNIX)
     set(LIB_EXT "so")
     set(HL2LIB "${HL2SDK}/lib/linux")
-    set(CXX_FLAGS "-D_LINUX")
-    set(LINKER_FLAGS "-shared -lstdc++")
+    set(CXX_FLAGS_LIST
+        -D_LINUX
+    )
+    set(LINKER_FLAGS_LIST
+        -shared
+        -lstdc++
+    )
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        set(LINKER_FLAGS "${LINKER_FLAGS} -static-libgcc")
+        list(APPEND LINKER_FLAGS_LIST -static-libgcc)
     endif()
+endif()
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    list(APPEND CXX_FLAGS_LIST -mfpmath=sse)
 endif()
 
 set(LIB_SUFFIX ".${LIB_EXT}")
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set(CXX_FLAGS "${CXX_FLAGS} -mfpmath=sse")
-endif()
+set(CXX_OPT_FLAGS_LIST
+    -DNDEBUG
+    -O3
+    -funroll-loops
+    -pipe
+    -fno-strict-aliasing
+)
 
-set(CXX_OPT_FLAGS "-DNDEBUG -O3 -funroll-loops -pipe -fno-strict-aliasing")
-set(CXX_DEBUG_FLAGS "-D_DEBUG -DDEBUG -g -ggdb3")
+set(CXX_DEBUG_FLAGS_LIST
+    -D_DEBUG
+    -DDEBUG
+    -g
+    -ggdb3
+)
 
-set(CXX_FLAGS "${CXX_FLAGS} -fvisibility=hidden -std=c++11 -DSOURCE_ENGINE=12 \
-    -DPOSIX -Dstricmp=strcasecmp -D_stricmp=strcasecmp \
-    -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_snprintf=snprintf \
-    -D_vsnprintf=vsnprintf -D_alloca=alloca -Dstrcmpi=strcasecmp \
-    -DCOMPILER_GCC -Wall -Werror -Wno-overloaded-virtual -Wno-switch \
-    -Wno-unused -msse -DSOURCEMOD_BUILD -DHAVE_STDINT_H -m32 -DSE_EPISODEONE=1 \
-    -DSE_DARKMESSIAH=2 -DSE_ORANGEBOX=3 -DSE_BLOODYGOODTIME=4 -DSE_EYE=5 \
-    -DSE_CSS=6 -DSE_ORANGEBOXVALVE=7 -DSE_LEFT4DEAD=8 -DSE_LEFT4DEAD2=9 \
-    -DSE_ALIENSWARM=10 -DSE_PORTAL2=11 -DSE_CSGO=12 -fvisibility-inlines-hidden \
-    -std=c++11 -Wno-non-virtual-dtor -fno-exceptions -fno-rtti \
-    -Wno-deprecated-register -Wno-delete-non-virtual-dtor")
+list(APPEND CXX_FLAGS_LIST
+    -DSOURCE_ENGINE=12
+    -fvisibility=hidden
+    -fvisibility-inlines-hidden
+    -std=c++11
+    -DPOSIX
+    -Dstricmp=strcasecmp
+    -D_stricmp=strcasecmp
+    -D_strnicmp=strncasecmp
+    -Dstrnicmp=strncasecmp
+    -D_snprintf=snprintf
+    -D_vsnprintf=vsnprintf
+    -D_alloca=alloca
+    -Dstrcmpi=strcasecmp
+    -DCOMPILER_GCC
+    -Wall
+    -Werror
+    -Wno-overloaded-virtual
+    -Wno-switch
+    -Wno-unused
+    -Wno-non-virtual-dtor
+    -Wno-delete-non-virtual-dtor
+    -fno-exceptions
+    -fno-rtti
+    -Wno-deprecated-register
+    -msse
+    -DSOURCEMOD_BUILD
+    -DHAVE_STDINT_H
+    -m32
+    -DSE_EPISODEONE=1
+    -DSE_DARKMESSIAH=2
+    -DSE_ORANGEBOX=3
+    -DSE_BLOODYGOODTIME=4
+    -DSE_EYE=5
+    -DSE_CSS=6
+    -DSE_ORANGEBOXVALVE=7
+    -DSE_LEFT4DEAD=8
+    -DSE_LEFT4DEAD2=9
+    -DSE_ALIENSWARM=10
+    -DSE_PORTAL2=11
+    -DSE_CSGO=12
+)
 
-set(LINKER_FLAGS "${LINKER_FLAGS} -m32 -ldl -lm")
+list(APPEND LINKER_FLAGS_LIST
+    -m32
+    -ldl
+    -lm
+)
+
+string(REPLACE ";" " " CXX_FLAGS "${CXX_FLAGS_LIST}")
+string(REPLACE ";" " " LINKER_FLAGS "${LINKER_FLAGS_LIST}")
+string(REPLACE ";" " " CXX_DEBUG_FLAGS "${CXX_DEBUG_FLAGS_LIST}")
+string(REPLACE ";" " " CXX_OPT_FLAGS "${CXX_OPT_FLAGS_LIST}")
 
 if(CMAKE_BUILD_TYPE EQUAL Debug)
     set(CXX_FLAGS "${CXX_FLAGS} ${CXX_DEBUG_FLAGS}")
@@ -62,7 +126,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LINKER_FLAGS}")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+include_directories(
         ${HL2SDK}/public/game/server
         ${HL2PUB}
         ${HL2PUB}/engine
