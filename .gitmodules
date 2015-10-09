@@ -1,0 +1,10 @@
+[submodule "external/sourcemod"]
+	path = external/sourcemod
+	url = https://github.com/alliedmodders/sourcemod
+[submodule "external/hl2sdk-csgo"]
+	path = external/hl2sdk-csgo
+	url = https://github.com/alliedmodders/hl2sdk
+	branch = csgo
+[submodule "external/metamod-source"]
+	path = external/metamod-source
+	url = git@github.com:alliedmodders/metamod-source.git
