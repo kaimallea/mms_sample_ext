@@ -4,8 +4,7 @@ Sample Metamod:Source Plugin for CSGO that also implements a SourceMod Extension
 
 For more info, read ["Writing Extensions from Metamod:Source Plugins"](https://wiki.alliedmods.net/Writing_Extensions_from_Metamod:Source_Plugins)
 
-This is the same `mms_sample_ext` from the `sourcemod` repo, except I made it work with CMake and only really care about it compiling on Linux and OSX.
-
+This is the same `mms_sample_ext` from the `sourcemod` repo, except I made it work with CMake and only really care about it compiling on Linux.
 ### Cloning
 
 This repo has submodules, meaning it depends on other git projects. And some of those submodules have submodules of their own. To ensure you get everything, make sure you clone recursively:
